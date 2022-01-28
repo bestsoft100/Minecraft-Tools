@@ -19,11 +19,11 @@ public class ResourceDownload {
 	private boolean replaceFiles;
 	
 	public ResourceDownload(File folder, boolean replaceFiles) {
-		this.folder = folder;
+		this.folder = folder.getAbsoluteFile();
 		this.replaceFiles = replaceFiles;
 	}
 	
-	private void downloadResources() {
+	public void downloadResources() {
 		XmlFile file = new XmlParser().parseWebsite(resourceDomain);
 		XmlContentTag content = file.getRootElement().getAsContentTag();
 		
@@ -36,7 +36,7 @@ public class ResourceDownload {
 				
 				boolean downloadFile = false;
 				
-				if(!soundFile.exists()) downloadFile = true;
+				if(!soundFile.isFile()) downloadFile = true;
 				if(soundFile.exists() && replaceFiles) {
 					long size = tag.get("Size").getAsStringTag().getLong();
 					if(size != soundFile.length()) {
@@ -49,8 +49,7 @@ public class ResourceDownload {
 					try{
 						downloadFile(name, soundFile);
 					}catch (Exception e) {
-						System.err.println("Error downloading sound file: "+name);
-						e.printStackTrace();
+						throw new RuntimeException("Error downloading sound file: "+name, e);
 					}
 				}
 			}
@@ -58,10 +57,10 @@ public class ResourceDownload {
 	}
 	
 	private void downloadFile(String name, File file) throws Exception{
-		System.out.print("Downloading Sound File: "+name+"... ");
-		
 		String url = resourceDomain + name;
 		url = url.replace(" ", "%20");
+		
+		System.out.println("Downloading File: "+url);
 		
 		if(file.exists()) {
 			file.delete();
@@ -76,11 +75,6 @@ public class ResourceDownload {
 		
 		in.close();
 		out.close();
-		System.out.println("Done!");
-	}
-	
-	public static void main(String[] args) {
-		new ResourceDownload(new File("resources"), true).downloadResources();
 	}
 	
 }
