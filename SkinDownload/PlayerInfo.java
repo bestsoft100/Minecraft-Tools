@@ -61,20 +61,20 @@ public class PlayerInfo {
 	
 	private void load() {
 		if(this.username == null) throw new NullPointerException("Username is null!");
-		this.uuid = getJsonFromURL(urlUUID + username).getString("id");
+		this.uuid = getJsonFromURL(urlUUID + username).getString("id").value;
 		
 		JsonObject object = getJsonFromURL(urlSkin + uuid);
-		object = new JsonParser().parse(decode(object.get("properties").getAsArray().query((e) -> {return e.getAsObject().has("name", stringTextures);}).getAsObject().getString("value")));
+		object = new JsonParser().parse(decode(object.get("properties").getAsArray().query((e) -> {return e.getAsObject().has("name", stringTextures);}).getAsObject().getString("value").value));
 		object = object.get(stringTextures).getAsObject();
 		
 		if(object.has(stringSkin)) {
-			this.skinUrl = object.get(stringSkin).getAsObject().getString(stringUrl);
+			this.skinUrl = object.get(stringSkin).getAsObject().getString(stringUrl).value;
 			log(format(msgPlayerSkin, username, skinUrl));
 		}else {
 			log(format(msgPlayerNoSkin, username));
 		}
 		if(object.has(stringCape)) {
-			this.capeUrl = object.get(stringCape).getAsObject().getString(stringUrl);
+			this.capeUrl = object.get(stringCape).getAsObject().getString(stringUrl).value;
 			log(format(msgPlayerCape, username, capeUrl));
 		}else {
 			log(format(msgPlayerNoCape, username));
@@ -127,7 +127,7 @@ public class PlayerInfo {
 		try {
 			InputStream stream = new URL(url).openStream();
 			if(stream == null) throw new NullPointerException("Stream is null!");
-			JsonObject object = new JsonParser().parse(stream);
+			JsonObject object = new JsonParser().parseStream(stream);
 			if(object == null) throw new NullPointerException("JsonObject is null!");
 			return object;
 		}catch (Exception e) {
